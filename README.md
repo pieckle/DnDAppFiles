@@ -1,9 +1,13 @@
-# DnDAppFiles
+# Compendium Files for Lion's Den
 
-Files for the GM5 and Fight Club apps from Lion's Den
+Reviving an old project to produce updated XML compendium files which can be imported into the Fight club 5 and Game Master Apps.
 
-Please do NOT use these files unless you know what you are doing. The files here are a work in progress, and are not guaranteed to work properly when imported.
+I intended to publish 'released' files through here on the main branch.
 
-If you would like files for import in your app, please go to www.tinyurl.com/DnDAppFiles to request an invite to a shared Dropbox folder.
+I will add content from _Xanathar's Guide to Everything_ and anything from _Volo's Guide to Monsters_ that isn't included and the spells from _Sword Coast Adventure's Guide_. I will remove and cease support for all Unearthed Arcana and playtest material.
 
-We are not affiliated with Leo or Lion's Den in any way.
+I will probably add content from Critical Role including the Blood Hunter class and the background and feats published in the _Tal'Dorei Campaign Setting_.
+
+Will eventually work on adding items and background from the various module books. I will mark _everything_ with sources.
+
+We are not affiliated with Leo or Lion's Den or ceryliae in any way.

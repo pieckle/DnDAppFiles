@@ -1,5 +1,7 @@
 package model;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import util.BetterNodeList;
 
@@ -7,19 +9,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static model.Parser.addTextNode;
+import static model.Parser.parseIntNode;
+
 public class Spell implements CompendiumObject {
 
     public static Spell parse(Node node) throws ParseException {
-        BetterNodeList spell = new BetterNodeList(node.getChildNodes());
+        BetterNodeList spell = new BetterNodeList(node);
         try {
             String name = spell.getFirstValue("name");
-            int level;
-            try {
-                level = Integer.parseInt(spell.getFirstValue("level"));
-            }
-            catch (NumberFormatException e){
-                throw new IllegalArgumentException("level should be an integer");
-            }
+            int level = parseIntNode(spell, "level");
             School school = School.fromAbbreviation(spell.getFirstValue("school"));
             boolean ritual = spell.hasNode("ritual") && spell.getFirstValue("ritual").equalsIgnoreCase("YSE");
             String time = spell.getFirstValue("time");
@@ -257,8 +256,52 @@ public class Spell implements CompendiumObject {
     }
 
     @Override
-    public Node toXML() {
-        return null;
+    public String toString(){
+        return name;
+    }
+
+    @Override
+    public Node toXML(Document doc) {
+        Element out = doc.createElement("spell");
+        addTextNode(doc, out, "name", name);
+        addTextNode(doc, out, "level", level);
+        addTextNode(doc, out, "school", school.getAbbreviation());
+        if (ritual){
+            addTextNode(doc, out, "ritual", "YES");
+        }
+        addTextNode(doc, out, "time", time);
+        addTextNode(doc, out, "range", range);
+        String comps = "";
+        if (material && !materials.isEmpty()){
+            comps += "M (";
+            for (String mat : materials){
+                comps += mat + ", ";
+            }
+            comps = comps.substring(0, comps.length() - 2) + ")";
+        }
+        if (somatic){
+            comps = "S, " + comps;
+        }
+        if (verbal){
+            comps = "V, " + comps;
+        }
+        if (comps.endsWith(", ")){
+            comps = comps.substring(0, comps.length() - 2);
+        }
+        addTextNode(doc, out, "components", comps);
+        addTextNode(doc, out, "duration", duration);
+        String classes = "";
+        for (String cl : this.classes){
+            classes += cl + ", ";
+        }
+        if (!classes.isEmpty()){
+            classes = classes.substring(0, classes.length() - 2);
+        }
+        addTextNode(doc, out, "classes", classes);
+        for (String text : this.text.split("\n")){
+            addTextNode(doc, out, "text", text);
+        }
+        return out;
     }
 
 }

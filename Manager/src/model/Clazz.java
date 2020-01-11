@@ -1,17 +1,20 @@
 package model;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import util.BetterNodeList;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static model.Parser.addTextNode;
 import static model.Parser.parseIntNode;
 
 public class Clazz implements CompendiumObject {
 
     public static Clazz parse(Node node) throws ParseException {
-        BetterNodeList clazz = new BetterNodeList(node.getChildNodes());
+        BetterNodeList clazz = new BetterNodeList(node);
         try {
             String name = clazz.getFirstValue("name");
             int hitDice = parseIntNode(clazz, "hd");
@@ -19,7 +22,10 @@ public class Clazz implements CompendiumObject {
             for (String term : clazz.getFirstValue("proficiency").split(", ")){
                 saveAbilities.add(Ability.valueOf(term));
             }
-            Ability spellAbility = Ability.valueOf(clazz.getFirstValue("spellAbility"));
+            Ability spellAbility = null;
+            if (clazz.hasNode("spellAbility")) {
+                spellAbility = Ability.valueOf(clazz.getFirstValue("spellAbility"));
+            }
             List<LevelFeature> levelFeatures = new ArrayList<>();
             for (Node autolvl : clazz.getNodes("autolevel")){
                 try {
@@ -97,8 +103,30 @@ public class Clazz implements CompendiumObject {
     }
 
     @Override
-    public Node toXML() {
-        return null;
+    public String toString(){
+        return name;
+    }
+
+    @Override
+    public Node toXML(Document doc) {
+        Element out = doc.createElement("class");
+        addTextNode(doc, out, "name", name);
+        addTextNode(doc, out, "hd", hitDice);
+        String saves = "";
+        for (Ability prof : saveProficiencies){
+            saves += prof.name() + ", ";
+        }
+        if (!saves.isEmpty()){
+            saves = saves.substring(0, saves.length() - 2);
+        }
+        addTextNode(doc, out, "proficiency", saves);
+        if (spellAbility != null) {
+            addTextNode(doc, out, "spellAbility", spellAbility.getAbbreviation());
+        }
+        for (LevelFeature feat : levelFeatures){
+            doc.appendChild(feat.toXML(doc));
+        }
+        return out;
     }
 
 }

@@ -1,5 +1,7 @@
 package model;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class Modifier implements CompendiumObject {
@@ -38,8 +40,11 @@ public class Modifier implements CompendiumObject {
     }
 
     @Override
-    public Node toXML() {
-        return null;
+    public Node toXML(Document doc) {
+        Element out = doc.createElement("modifier");
+        out.setAttribute("category", category);
+        out.appendChild(doc.createTextNode(text));
+        return out;
     }
 
 }

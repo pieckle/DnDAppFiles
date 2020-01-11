@@ -1,7 +1,5 @@
 package model;
 
-import org.w3c.dom.Node;
-
 public class AbilityBonus {
 
     public static AbilityBonus parse(String value) throws ParseException {

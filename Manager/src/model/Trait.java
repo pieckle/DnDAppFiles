@@ -1,12 +1,16 @@
 package model;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import util.BetterNodeList;
+
+import static model.Parser.addTextNode;
 
 public class Trait implements CompendiumObject {
 
     public static Trait parse(Node node) throws ParseException {
-        BetterNodeList trait = new BetterNodeList(node.getChildNodes());
+        BetterNodeList trait = new BetterNodeList(node);
         try {
             String name = trait.getFirstValue("name");
             StringBuilder text = new StringBuilder();
@@ -46,8 +50,18 @@ public class Trait implements CompendiumObject {
     }
 
     @Override
-    public Node toXML() {
-        return null;
+    public String toString(){
+        return name;
+    }
+
+    @Override
+    public Node toXML(Document doc) {
+        Element out = doc.createElement("trait");
+        addTextNode(doc, out, "name", this.name);
+        for (String text : this.text.split("\n")){
+            addTextNode(doc, out, "text", text);
+        }
+        return out;
     }
 
 }

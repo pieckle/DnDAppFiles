@@ -1,17 +1,20 @@
 package model;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import util.BetterNodeList;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static model.Parser.addTextNode;
 import static model.Parser.parseIntNode;
 
 public class Race implements CompendiumObject {
 
     public static Race parse(Node node) throws ParseException {
-        BetterNodeList race = new BetterNodeList(node.getChildNodes());
+        BetterNodeList race = new BetterNodeList(node);
         try {
             String name = race.getFirstValue("name");
             Size size = Size.fromAbbreviation(race.getFirstValue("size"));
@@ -92,8 +95,28 @@ public class Race implements CompendiumObject {
     }
 
     @Override
-    public Node toXML() {
-        return null;
+    public String toString(){
+        return name;
+    }
+
+    @Override
+    public Node toXML(Document doc) {
+        Element out = doc.createElement("race");
+        addTextNode(doc, out, "name", name);
+        addTextNode(doc, out, "size", size.getAbbreviation());
+        addTextNode(doc, out, "speed", speed);
+        String abilities = "";
+        for (AbilityBonus bonus : this.abilities){
+            abilities += bonus.toString() + ", ";
+        }
+        if (!abilities.isEmpty()) {
+            abilities = abilities.substring(0, abilities.length() - 2);
+        }
+        addTextNode(doc, out, "ability", abilities);
+        for (Trait trait : traits){
+            out.appendChild(trait.toXML(doc));
+        }
+        return out;
     }
 
 }

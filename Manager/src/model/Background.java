@@ -1,15 +1,19 @@
 package model;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import util.BetterNodeList;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static model.Parser.addTextNode;
+
 public class Background implements CompendiumObject {
 
     public static Background parse(Node node) throws ParseException {
-        BetterNodeList background = new BetterNodeList(node.getChildNodes());
+        BetterNodeList background = new BetterNodeList(node);
         try {
             String name = background.getFirstValue("name");
             List<String> proficiencies = new ArrayList<>();
@@ -64,8 +68,26 @@ public class Background implements CompendiumObject {
     }
 
     @Override
-    public Node toXML() {
-        return null;
+    public String toString(){
+        return name;
+    }
+
+    @Override
+    public Node toXML(Document doc) {
+        Element out = doc.createElement("class");
+        addTextNode(doc, out, "name", name);
+        String proficiencies = "";
+        for (String prof : this.proficiencies){
+            proficiencies += prof + ", ";
+        }
+        if (!proficiencies.isEmpty()){
+            proficiencies = proficiencies.substring(0, proficiencies.length() - 2);
+        }
+        addTextNode(doc, out, "proficiency", proficiencies);
+        for (Trait trait : traits){
+            out.appendChild(trait.toXML(doc));
+        }
+        return out;
     }
 
 }

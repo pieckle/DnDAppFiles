@@ -7,10 +7,13 @@ import java.util.*;
 
 public class BetterNodeList extends ArrayList<Node> {
 
+    private String name;
     private Map<String, List<Node>> nodes;
     private Set<String> keys;
 
-    public BetterNodeList(NodeList list){
+    public BetterNodeList(Node node){
+        this.name = node.getNodeName();
+        NodeList list  = node.getChildNodes();
         nodes = new TreeMap<>();
         for (int i = 0; i < list.getLength(); i++){
             Node entry = list.item(i);
@@ -47,7 +50,7 @@ public class BetterNodeList extends ArrayList<Node> {
     public BetterNodeList getFirstChild(String tag){
         keys.remove(tag);
         if (hasNode(tag)){
-            return new BetterNodeList(getNodes(tag).get(0).getChildNodes());
+            return new BetterNodeList(getNodes(tag).get(0));
         }
         throw new IllegalArgumentException("Node \"" + tag + "\" not found");
     }
@@ -68,6 +71,10 @@ public class BetterNodeList extends ArrayList<Node> {
         else {
             return def;
         }
+    }
+
+    public String getName(){
+        return name;
     }
 
     public Set<String> getUnusedNodes(){

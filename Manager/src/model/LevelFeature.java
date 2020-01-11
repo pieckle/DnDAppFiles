@@ -1,5 +1,7 @@
 package model;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import util.BetterNodeList;
 
@@ -13,7 +15,7 @@ public class LevelFeature implements CompendiumObject {
             throw new ParseException("Failed to parse LevelFeature: no defined level");
         }
         int level = Integer.parseInt(node.getAttributes().getNamedItem("level").getTextContent());
-        BetterNodeList lvlFeat = new BetterNodeList(node.getChildNodes());
+        BetterNodeList lvlFeat = new BetterNodeList(node);
         List<Integer> slots = null;
         if (lvlFeat.hasNode("slots")){
             slots = new ArrayList<>();
@@ -79,8 +81,31 @@ public class LevelFeature implements CompendiumObject {
     }
 
     @Override
-    public Node toXML() {
-        return null;
+    public String toString(){
+        return "autolevel" + level;
+    }
+
+    @Override
+    public Node toXML(Document doc) {
+        Element out = doc.createElement("autolevel");
+        out.setAttribute("level", level + "");
+        if (slots != null){
+            Element slots = doc.createElement("slots");
+            String txt = "";
+            for (int i : this.slots){
+                txt += i + ",";
+            }
+            if (!txt.isEmpty()) {
+                txt = txt.substring(0, txt.length() - 1);
+            }
+            slots.appendChild(doc.createTextNode(txt));
+        }
+        else if (features != null){
+            for (Feature feature : features){
+                out.appendChild(feature.toXML(doc));
+            }
+        }
+        return out;
     }
 
 }

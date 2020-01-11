@@ -4,6 +4,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import ui.ConsoleOut;
 import util.BetterNodeList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -11,10 +12,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Parser {
 
-    public static void parse(File file) throws ParserConfigurationException, IOException, SAXException, ParseException {
+    public static List<CompendiumObject> parse(File file) throws ParserConfigurationException, IOException, SAXException, ParseException {
         DocumentBuilderFactory factory =
                 DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -23,15 +26,16 @@ public class Parser {
         if (root.getTagName().equals("compendium") &&
                 root.hasAttribute("version") &&
                 root.getAttribute("version").equals("5")){
-            Page page = new Page(file);
-            for (Node node : new BetterNodeList(root.getChildNodes())){
+            List<CompendiumObject> out = new ArrayList<>();
+            for (Node node : new BetterNodeList(root)){
                 try {
-                    page.addEntry(doParse(node));
+                    out.add(doParse(node));
                 }
                 catch (ParseException p){
-                    System.err.println("Failed to parse entry <" + node.getNodeName() + ">: " + p.getMessage());
+                    ConsoleOut.printError("Failed to parse entry <" + node.getNodeName() + ">: " + p.getMessage());
                 }
             }
+            return out;
         }
         else {
             throw new ParseException("XML file not a compendium");
@@ -65,6 +69,27 @@ public class Parser {
         }
         catch (NumberFormatException e){
             throw new IllegalArgumentException("Failed to parse " + tag + " \"" + list.getFirstValue(tag) + "\"");
+        }
+    }
+
+    public static void addTextNode(Document doc, Element parent, String tag, int value){
+        addTextNode(doc, parent, tag, value + "");
+    }
+
+    public static void addTextNode(Document doc, Element parent, String tag, String text){
+        Element out = doc.createElement(tag);
+        out.appendChild(doc.createTextNode(text));
+        parent.appendChild(out);
+    }
+
+    public static void checkUnused(BetterNodeList list){
+        if (!list.getUnusedNodes().isEmpty()){
+            String out = "";
+            for (String node : list.getUnusedNodes()){
+                out += node + ", ";
+            }
+            out = out.substring(0, out.length() - 2);
+            ConsoleOut.printError("  Unused fields \"" + out + "\" in node " + list.getName());
         }
     }
 

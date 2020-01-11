@@ -1,2 +1,5 @@
 .dropbox
 desktop.ini
+*.iml
+Manager/.idea/*
+Manager/out/*
